@@ -1,0 +1,296 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d7d09f23-1436-4792-9b8b-a6ea389ffb7e",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        16
+      ],
+      "id": "3e5d92e0-4a29-48ae-9f5b-4c13398ed842",
+      "name": "Webhook",
+      "webhookId": "d7d09f23-1436-4792-9b8b-a6ea389ffb7e"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze the sentiment of the following text. Respond with only one word: Positive, Negative, or Neutral. Text: {{ $json.body.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -96
+      ],
+      "id": "521bf537-9358-416f-aeb6-ee06c7e4ae47",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "aE94pfBIKCgU6drl",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aa3ba0f7-3481-49d2-a3d5-8aa856af7e8f",
+              "name": "=sentimentResult",
+              "value": "={{ $('Message a model').item.json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "46da4099-a99a-493a-929c-defadb45382f",
+              "name": "summaryResult",
+              "value": "={{ $('Edit Fields2').item.json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        16
+      ],
+      "id": "4b6db3ac-ca6b-4c22-9ea8-c87708be9a86",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize the following text in one short sentence. Text: {{ $json.body.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        128
+      ],
+      "id": "35ca0b5a-2fdb-45b8-beb4-78acc14b38f5",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "aE94pfBIKCgU6drl",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "mergeKey",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "d006ee11-34eb-4ba9-9497-53c14bc1ab4f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11fb8b3a-a312-4c91-8438-16ba59df5417",
+              "name": "mergeKey",
+              "value": "\"merge\"",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        -96
+      ],
+      "id": "0d730e99-a362-4469-9c6a-595351132ff7",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c92bfe79-d4b7-4ea8-a3ba-c04519e139e1",
+              "name": "mergeKey",
+              "value": "\"merge\"",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        128
+      ],
+      "id": "850a700d-f213-4a23-b22b-7cdb3dab567a",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        928,
+        16
+      ],
+      "id": "8da6124f-f4aa-498b-a992-197bbe9a5be9",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4e001dd2-0606-4738-b704-aedcb15a71f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91be41534fc82e9afe26ed47e392946dd0c42343cae16c25e157a891f7f2f1af"
+  },
+  "id": "Ea4JWtilXPLehuqY",
+  "tags": []
+}
