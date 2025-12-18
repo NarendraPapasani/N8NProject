@@ -55,7 +55,7 @@ const SentimentPage = () => {
 
       // Show success toast
       toast({
-        title: "✅ Analysis Complete!",
+        title: "Analysis Complete!",
         description: "Your sentiment analysis has been successfully completed.",
         className: "bg-green-50 border-green-200 text-green-900",
       });
